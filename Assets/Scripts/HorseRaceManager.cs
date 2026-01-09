@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UIElements;
+using Mono.Cecil.Cil;
 
 public class HorseRaceManager : MonoBehaviour
 {
@@ -10,8 +11,18 @@ public class HorseRaceManager : MonoBehaviour
     [Header("말 오브젝트들")]
     public HorseView[] horseViews;
 
+    [Header("레이캐스트")]
+    public float maxDistance = 100f;
+    public LayerMask horseLayer;
+
+    [Header("버프")]
+    public float boostAmount = 1.0f;
+
     public List<Horse> horses = new List<Horse>();
     private bool raceFinished = false;
+    private int selectedId = -1;     //말이 0, 1, 2이기 때문에 선택이 안된 상태여야함. -1이라고 표현
+
+    public int SelectedId => selectedId;
 
     void Start()
     {
@@ -51,6 +62,16 @@ public class HorseRaceManager : MonoBehaviour
                 Debug.Log($"우승 : {h.name}");
             }
         }
+        if (Input.GetMouseButtonDown(0))
+            TrySelectHorse();
+
+        if(Input.GetKeyDown(KeyCode.B) && selectedId != -1)
+        {
+            horses[selectedId].speed += boostAmount;
+            Debug.Log($"버프! {horses[selectedId].name} speed = {horses[selectedId].speed:F2}");
+        }
+
+        
 
         //void ShowHorseData()            //말의 현재 스피드, 위치를 알려준다. 
         //{
@@ -61,5 +82,40 @@ public class HorseRaceManager : MonoBehaviour
         //}
 
 
+    }
+    void TrySelectHorse()
+    {
+        Camera cam = Camera.main;    //메인 카메라 가져올 때 관례적으로 사용함.
+        if (cam == null) return;
+        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+        Debug.DrawRay(ray.origin, ray.direction * maxDistance, Color.cyan, 1f);
+
+        if(Physics.Raycast(ray, out RaycastHit hit, maxDistance, horseLayer))
+        {
+            HorseView view = hit.collider.GetComponent<HorseView>();  //Hi된 오브젝트의 Component를 가져와서 view에 넣는다.
+            if(view != null)
+            {
+                Select(view.horseId);
+                return;
+            }
+        }
+        Select(-1); //아무것도 선택하지 않으면 -1 (0, 1, 2 중에 -1이기 때문에 아무것도 선택되지 않음.)
+    }
+    void Select(int id)
+    {
+        selectedId = id;
+
+        for(int i = 0; i < horseViews.Length; i++)
+        {
+            horseViews[i].SetSelected(i == selectedId);
+
+            Debug.Log(selectedId == -1 ? "선택 해제" : $"선택: {horses[selectedId].name}");
+        }
+    }
+    public Transform GetHorseTrasform(int id)
+    {
+        if(horseViews == null) return null;
+        if(id < 0 || id >= horseViews.Length) return null;
+        return horseViews[id].transform;
     }
 }
