@@ -673,10 +673,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TankShooterUnit
   teamId: 1
-  hp: 50
+  hp: 100
   searchRadius: 20
-  attackRange: 6
-  moveSpeed: 3
+  attackRange: 2
+  moveSpeed: 7
   attackCooldown: 0.8
   damage: 15
   criticalDamage: 2
@@ -684,6 +684,7 @@ MonoBehaviour:
   currentShield: 0
   shield: 30
   shieldPercent: 0.3
+  shieldCooldown: 5
   maxHp: 50
 --- !u!136 &766555775
 CapsuleCollider:

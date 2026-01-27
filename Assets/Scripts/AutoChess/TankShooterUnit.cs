@@ -54,26 +54,9 @@ public class TankShooterUnit : UnitBase
 
         int remainingDamage = amount;            //TakeDamage(int amount)
 
-        if (currentShield > 0)
+        if (!IsDead && currentShield <= 0 && shieldTimer >= shieldCooldown)
         {
-            int absorbed = Mathf.Min(currentShield, remainingDamage);    //흡수되는 데미지 = (현재 쉴드 ex.30 , 남아있는 데미지 ex.40) = 40이 남음
-            currentShield -= absorbed;                                   //쉴드가 30 막음
-            remainingDamage -= absorbed;
-
-            UpdateSheildColor();//hp에서 10 감소
-
-            if (remainingDamage > 0)
-            {
-                base.TakeDamage(remainingDamage);
-            }
-
-        }
-    }
-    protected override void TryAttack(IDamageable t)
-    {
-        if(!IsDead && currentShield <= 0 && shieldTimer >= shieldCooldown)
-        {
-            if(Random.value < shieldPercent)
+            if (Random.value < shieldPercent)
             {
                 shieldTimer = 0f;
                 currentShield = shield;
@@ -85,8 +68,23 @@ public class TankShooterUnit : UnitBase
                 Debug.Log("쉴드 생성 실패!");
             }
         }
-        base.TryAttack(t);
+        if (currentShield > 0)
+        {
+            int absorbed = Mathf.Min(currentShield, remainingDamage);    //쉴드가 대신 맞아준 데미지 양 = (현재 쉴드 ex.30 , 남아있는 데미지 ex.40) = 30이 남음
+            currentShield -= absorbed;                                   //쉴드가 30 막음
+            remainingDamage -= absorbed;
+
+            UpdateSheildColor();//hp에서 10 감소
+
+            if (remainingDamage > 0)
+            {
+                base.TakeDamage(remainingDamage);
+            }
+        }
+
+
     }
+  
     void UpdateSheildColor()
     {
         if(currentShield <= 0)

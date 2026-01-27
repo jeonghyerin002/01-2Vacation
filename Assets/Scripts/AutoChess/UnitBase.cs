@@ -4,7 +4,7 @@ public abstract class UnitBase : MonoBehaviour, IDamageable
 {
     [Header("Team/HP")]
     [SerializeField] int teamId = 0;
-    [SerializeField] int hp = 50;
+    [SerializeField] protected int hp = 50;
     public int TeamId => teamId;
     public bool IsDead => hp <= 0;
 
